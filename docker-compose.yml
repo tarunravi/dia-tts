@@ -2,7 +2,7 @@ version: "3.8"
 services:
   flask-dia:
     build:
-      context: .
+      context: https://github.com/tarunravi/dia-tts.git
       dockerfile: Dockerfile
     runtime: nvidia
     ports:

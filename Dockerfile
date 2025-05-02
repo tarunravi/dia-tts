@@ -1,12 +1,12 @@
-# Use a PyTorch image with CUDA support
+# Use PyTorch image with CUDA support
 FROM pytorch/pytorch:2.0.1-cuda11.7-cudnn8-devel
 
-# Avoid interactive prompts during package installs
+# Avoid interactive prompts and speed up installs
 ENV DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC
 
-# Install system dependencies
+# Install minimal system dependencies
 RUN apt-get update && \
-    apt-get install -y -qq tzdata libsndfile1 ffmpeg git && \
+    apt-get install -y -qq tzdata libsndfile1 ffmpeg git --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -14,7 +14,9 @@ WORKDIR /app
 
 # Copy and install Python dependencies
 COPY requirements.txt ./
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir git+https://github.com/nari-labs/dia.git --no-deps
 
 # Copy application code
 COPY . .
