@@ -25,4 +25,4 @@ ENV FLASK_RUN_HOST=0.0.0.0
 EXPOSE 5023
 
 # Run the Flask app
-CMD ["gunicorn", "-b", "0.0.0.0:5023", "--workers", "4", "app:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:5023", "--workers", "4", "--preload", "app:app"]
