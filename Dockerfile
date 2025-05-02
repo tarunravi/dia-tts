@@ -8,6 +8,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Install git
+RUN apt-get update && apt-get install -y git
+
 # Install DIA library from GitHub
 RUN pip install git+https://github.com/nari-labs/dia.git
 
