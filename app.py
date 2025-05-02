@@ -10,7 +10,7 @@ app = Flask(__name__)
 def hello():
     return 'Hello World', 200
 
-# Load the model once at startup (GPU-enabled)
+# Load model at startup
 model = Dia.from_pretrained("nari-labs/Dia-1.6B")
 
 @app.route('/generate', methods=['POST'])
@@ -20,22 +20,21 @@ def generate():
         return jsonify({'error': 'No text provided'}), 400
     text = data['text']
 
-    # Generate raw audio samples (numpy array)
+    # Generate audio samples
     audio = model.generate(text)
 
-    # Write to in-memory WAV
+    # Encode to WAV
     wav_buf = io.BytesIO()
     sf.write(wav_buf, audio, 44100, format='WAV')
     wav_buf.seek(0)
 
-    # Convert WAV to MP3 via ffmpeg subprocess
-    proc = subprocess.Popen(
-        ['ffmpeg', '-i', 'pipe:0', '-f', 'mp3', '-codec:a', 'libmp3lame', 'pipe:1'],
-        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
+    # Convert to MP3
+    proc = subprocess.Popen([
+        'ffmpeg', '-i', 'pipe:0', '-f', 'mp3', '-codec:a', 'libmp3lame', 'pipe:1'
+    ], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     mp3_data, _ = proc.communicate(wav_buf.read())
 
-    # Return MP3 to client
+    # Send MP3
     return send_file(
         io.BytesIO(mp3_data),
         mimetype='audio/mpeg',
@@ -44,3 +43,4 @@ def generate():
     )
 
 if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5023)
