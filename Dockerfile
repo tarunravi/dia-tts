@@ -1,9 +1,12 @@
 # Use a PyTorch image with CUDA support
 FROM pytorch/pytorch:2.0.1-cuda11.7-cudnn8-devel
 
+# Avoid interactive prompts during package installs
+ENV DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC
+
 # Install system dependencies
 RUN apt-get update && \
-    apt-get install -y libsndfile1 ffmpeg git && \
+    apt-get install -y -qq tzdata libsndfile1 ffmpeg git && \
     rm -rf /var/lib/apt/lists/*
 
 # Set working directory
