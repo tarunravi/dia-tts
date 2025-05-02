@@ -1,27 +1,25 @@
-# Base image with PyTorch and CUDA support
-FROM pytorch/pytorch:2.0.1-cuda11.7-cudnn8-devel
+# Use an official lightweight Python image
+FROM python:3.9-slim
 
-# Prevent interactive prompts
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Install only required system packages
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends libsndfile1 ffmpeg git && \
-    rm -rf /var/lib/apt/lists/*
-
-# Set working directory
+# Set the working directory
 WORKDIR /app
 
-# Install Python dependencies and Dia (without re-installing torch)
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir git+https://github.com/nari-labs/dia.git --no-deps
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install DIA library from GitHub
+RUN pip install git+https://github.com/nari-labs/dia.git
 
 # Copy application code
 COPY . .
 
-# Expose Flask port
+# Set environment variables for Flask
+ENV FLASK_APP=app.py
+ENV FLASK_RUN_HOST=0.0.0.0
+
+# Expose port 5023
 EXPOSE 5023
 
-# Launch with Gunicorn for multiple workers
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5023", "app:app"]
+# Run the Flask app
+CMD ["gunicorn", "-b", "0.0.0.0:5023", "--workers", "4", "app:app"]
