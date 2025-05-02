@@ -1,0 +1,6 @@
+# Core model & dependencies
+git+https://github.com/nari-labs/dia.git
+soundfile
+flask
+gunicorn
+# Ensure compatible torch is present (provided by base image)
